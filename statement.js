@@ -1,11 +1,16 @@
 import * as PLAYS from './plays.json';
+
 function statement (invoice) {
+  return renderPlainText(createStatementData(invoice));
+}
+
+function createStatementData(invoice) {
   const statementData = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
   statementData.totalAmount = totalAmount(statementData);
   statementData.totalVolumeCredits = totalVolumeCredits(statementData);
-  return renderPlainText(statementData);
+  return statementData;
 }
 
 function renderPlainText(data) {
