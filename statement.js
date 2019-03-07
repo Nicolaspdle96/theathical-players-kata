@@ -1,19 +1,21 @@
 import * as PLAYS from './plays.json';
-function statement (invoice, plays) {
+function statement (invoice) {
   const statementData = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
-  return renderPlainText(statementData, plays);
+  statementData.totalAmount = totalAmount(statementData);
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
+  return renderPlainText(statementData);
 }
 
-function renderPlainText(data, plays) {
+function renderPlainText(data) {
   let result = `Statement for ${data.customer}\n`;
   for (let perf of data.performances) {
     // print line for this order
     result += ` ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n`;
   }
-  result += `Amount owed is ${usd(totalAmount(data, plays))}\n`;
-  result += `You earned ${totalVolumeCredits(data, plays)} credits\n`;
+  result += `Amount owed is ${usd(data.totalAmount)}\n`;
+  result += `You earned ${data.totalVolumeCredits} credits\n`;
   return result;
 }
 
@@ -21,10 +23,11 @@ function enrichPerformance(aPerformance) {
   const result = Object.assign({}, aPerformance);
   result.play = playFor(result);
   result.amount = amountFor(result);
+  result.volumeCredits = volumeCreditsFor(result);
   return result;
 }
 
-function totalAmount(data, plays) {
+function totalAmount(data) {
   let result = 0;
   for (let perf of data.performances) {
     result += perf.amount;
@@ -32,10 +35,10 @@ function totalAmount(data, plays) {
   return result;
 }
 
-function totalVolumeCredits(data, plays) {
+function totalVolumeCredits(data) {
   let result = 0;
   for (let perf of data.performances) {
-    result += volumeCreditsFor(perf, plays);
+    result += perf.volumeCredits;
   }
   return result;
 }
@@ -71,12 +74,12 @@ function amountFor(aPerformance) {
       result += 300 * aPerformance.audience;
       break;
     default:
-      throw new Error(`unknown type: ${aPerformance.plays.type}`);
+      throw new Error(`unknown type: ${aPerformance.play.type}`);
   }
   return result;
 }
 
-function playFor(aPerformance, plays) {
+function playFor(aPerformance) {
  return PLAYS[aPerformance.playID];
 }
 
