@@ -20,7 +20,12 @@ function enrichPerformance(aPerformance) {
 }
 
 function createPerformanceCalculator(aPerformance, aPlay) {
- return new PerformanceCalculator(aPerformance, aPlay);
+ switch(aPlay.type) {
+ case "tragedy": return new TragedyCalculator(aPerformance,aPlay);
+ case "comedy" : return new ComedyCalculator(aPerformance,aPlay);
+ default:
+ throw new Error(`unknown type: ${aPlay.type}`);
+ }
 }
 
 function totalAmount(data) {
@@ -49,10 +54,7 @@ class PerformanceCalculator {
     let result = 0;
     switch (this.play.type) {
         case "tragedy":
-            result = 40000;
-            if (this.performance.audience > 30) {
-            result += 1000 * (this.performance.audience - 30);
-            }
+            throw 'bad thing';
         break;
             case "comedy":
             result = 30000;
@@ -73,4 +75,17 @@ class PerformanceCalculator {
    Math.floor(this.performance.audience / 5);
     return result;
    }
+}
+
+class TragedyCalculator extends PerformanceCalculator {
+    getAmount() {
+        let result = 40000;
+        if (this.performance.audience > 30) {
+        result += 1000 * (this.performance.audience - 30);
+        }
+        return result;
+    }
+}
+
+class ComedyCalculator extends PerformanceCalculator {
 }
